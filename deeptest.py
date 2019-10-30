@@ -1,5 +1,5 @@
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
+from keras.models import Sequential, Input, Model
+from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, Lambda
 import keras
 from keras import backend as K
 from DataRead import NormalDataRead
@@ -33,6 +33,40 @@ def MNISTmodel(input_shape):
                   metrics=['accuracy'])
 
     return model
+
+def VideoEditCNN(input_shape):
+    # Define the tensors for the two input images
+    left_input = Input(input_shape)
+    right_input = Input(input_shape)
+
+    # Convolutional Neural Network
+    model = Sequential()
+    model.add(Conv2D(64, (10, 10), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D())
+    model.add(Conv2D(128, (7, 7), activation='relu'))
+    model.add(MaxPooling2D())
+    model.add(Conv2D(128, (4, 4), activation='relu'))
+    model.add(MaxPooling2D())
+    model.add(Conv2D(256, (4, 4), activation='relu'))
+    model.add(Flatten())
+    model.add(Dense(4096, activation='sigmoid'))
+
+    # Generate the encodings (feature vectors) for the two images
+    encoded_l = model(left_input)
+    encoded_r = model(right_input)
+
+    # Add a customized layer to compute the absolute difference between the encodings
+    L1_layer = Lambda(lambda tensors: K.abs(tensors[0] - tensors[1]))
+    L1_distance = L1_layer([encoded_l, encoded_r])
+
+    # Add a dense layer with a sigmoid unit to generate the similarity score
+    prediction = Dense(1, activation='sigmoid')(L1_distance)
+
+    # Connect the inputs with the outputs
+    siamese_net = Model(inputs=[left_input, right_input], outputs=prediction)
+
+    # return the model
+    return siamese_net
 
 model = MNISTmodel(input_shape)
 

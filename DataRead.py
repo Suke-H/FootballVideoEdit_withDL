@@ -1,6 +1,7 @@
 import keras
 from keras.datasets import mnist
 from keras import backend as K
+import numpy as np
 
 from CutFivesec import CutFivesec
 
@@ -41,10 +42,10 @@ def NormalDataRead():
 
 def PairDataRead():
     num_classes = 2
-    img_rows, img_cols, frame = 150, 1920, 1080
+    img_rows, img_cols, frame = 200, 200, 150
 
     #mnistをロード
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    wide_train = np.load("./video/test1.npy")
 
     #kerasの環境によってchannel_firstかlastか違うらしく、
     #それに応じてtransposeをする。

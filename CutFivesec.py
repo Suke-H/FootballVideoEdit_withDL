@@ -5,16 +5,16 @@ from glob import glob
 import re
 
 ##################################################################
-#  作成した動画データセットを読み込む際に、動画をグレースケールにして
+#  作成した動画データセットを読み込む際に、動画をグレースケールかつ200*200にリサイズして
 #  動画の最後から150フレームとることにより、
-#　[N, 150, 1920, 1080]となるデータセットを返す関数
+#　[N, 150, 200, 200]となるデータセットを作成し、npy形式で保存する
 #################################################################
 # (おそらく5秒 = 150フレーム)
 # dir_path: 動画データセットの場所
-def CutFivesec(dir_path):
+def CutFivesec(source_dir_path, trans_dir_data, filename):
 
     #ソースディレクトリ内の全ての動画のパスを読み込んで、ソート
-    paths = sorted(glob(dir_path + "/**"), key=lambda s: int(re.search(r'\d+', s).group()))
+    paths = sorted(glob(source_dir_path + "/**"), key=lambda s: int(re.findall(r'\d+', s)[len(re.findall(r'\d+', s))-1]))
 
     videos = []
 
@@ -40,6 +40,8 @@ def CutFivesec(dir_path):
             if ret:
                 #グレースケールに変換
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                #200*200にリサイズ
+                gray = cv2.resize(gray, (200,200))
                 #one_videoに1フレームずつappend
                 one_video.append(gray)
 
@@ -51,11 +53,13 @@ def CutFivesec(dir_path):
         #print(np.asarray(one_video[int(-1*fps*10//1):]).shape, real_frame)
 
         #動画の最後から150フレーム取ってappend
-        videos.append(one_video[int(-150):])
+        videos.append(one_video[-150:])
 
     videos = np.array(videos)
     print(videos.shape)
 
-    return videos
+    #[N, 150, 200, 200]の動画データセットを一つのnpyファイルにして保存
+    np.save(trans_dir_data + "/" + filename, videos)
 
-CutFivesec("D:/VE/TRANS_DATA/1Q/wide")
+
+CutFivesec("D:/VE/TRANS_DATA/1Q/wide", "D:/VE/TRANS_DATA/1Q", "test1")
