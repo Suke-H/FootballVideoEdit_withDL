@@ -1,9 +1,6 @@
-import cv2
-import ffmpeg as fp
 import os
 import numpy as np
 from glob import glob
-import subprocess
 import re
 import shutil
 import random
@@ -20,6 +17,7 @@ import random
 def MakePairData(source_dir_path, trans_dir_path):
     #ソースディレクトリ内の全ての動画のパスを読み込んで、ソート
     trans_paths = sorted(glob(source_dir_path + "/**.mp4"), key=lambda s: int(re.findall(r'\d+', s)[1]))
+    print(trans_paths)
 
     #新規フォルダ作成
     os.mkdir(trans_dir_path + "/wide")
@@ -32,11 +30,11 @@ def MakePairData(source_dir_path, trans_dir_path):
     #wideのビデオは順序を変えずに移す
     for i in range(num):
         file_name = str(i) + ".mp4"
-        shutil.copyfile(trans_paths[2*i], trans_dir_path + "/wide" + file_name)
+        shutil.copyfile(trans_paths[2*i], trans_dir_path + "/wide/" + file_name)
 
     #verchの操作。。。
     #巡回置換する動画の番号リストをランダムで作成
-    hange_list = sorted(random.sample([i for i in range(num)], num//2))
+    change_list = sorted(random.sample([i for i in range(num)], num//2))
     print(change_list)
 
     """
@@ -64,18 +62,19 @@ def MakePairData(source_dir_path, trans_dir_path):
         if i in change_list:
             idx = change_list.index(i)
             file_name = str(after_change_list[idx]) + "v.mp4"
-            shutil.copyfile(trans_paths[2*i+1], trans_dir_path + "/verch" + file_name)
+            shutil.copyfile(trans_paths[2*i+1], trans_dir_path + "/verch/" + file_name)
             #正解ラベルは0
             targets.append(0)
 
         #載ってなかったらそのままの順番で移す
         else:
             file_name = str(i) + "v.mp4"
-            shutil.copyfile(trans_paths[2*i+1], trans_dir_path + "/verch" + file_name)
+            shutil.copyfile(trans_paths[2*i+1], trans_dir_path + "/verch/" + file_name)
             #正解ラベルは1
             targets.append(1)
 
     #正解ラベルを保存
     np.array(targets, dtype="uint8")
-    np.save(trans_dir_data + "/targets", targets)
-    
+    np.save(trans_dir_path + "/targets", targets)
+
+MakePairData("D:/VE/長県戦/1Qtrans", "D:/VE/TRANS_DATA/1Q")

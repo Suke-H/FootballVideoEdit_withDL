@@ -1,5 +1,5 @@
 import cv2
-import sys
+#import sys
 import numpy as np
 from glob import glob
 import re
@@ -48,7 +48,7 @@ def CutFivesec(dir_path):
             else:
                 break
 
-        print(np.asarray(one_video[int(-1*fps*10//1):]).shape, real_frame)
+        #print(np.asarray(one_video[int(-1*fps*10//1):]).shape, real_frame)
 
         #動画の最後から150フレーム取ってappend
         videos.append(one_video[int(-150):])
@@ -58,4 +58,4 @@ def CutFivesec(dir_path):
 
     return videos
 
-#CutFivesec("D:/VE/TRANS_DATA/1Q/wide")
+CutFivesec("D:/VE/TRANS_DATA/1Q/wide")

@@ -1,5 +1,4 @@
 import cv2
-import ffmpeg as fp
 import os
 import numpy as np
 from glob import glob
@@ -37,7 +36,7 @@ def VideoTrans(source_dir_path, trans_dir_data):
 
         subprocess.call(cmd, shell=True)
 
-
+VideoTrans("D:/VE/長県戦/1Q", "D:/VE/長県戦/1Qtrans")
 
 
 
