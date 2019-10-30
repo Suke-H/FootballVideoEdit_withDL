@@ -5,6 +5,7 @@ import re
 import shutil
 import random
 
+from CutFivesec import CutFivesec
 
 ###ペアのデータを作成する工程###
 #source_dir_path: データが入っているディレクトリのパス
@@ -12,69 +13,68 @@ import random
 #trans_dir_data :　データを移す場所
 #  ├ /wide      :  wideのデータセット
 #  ├ /verch     :  verchのデータセット
-#  ├ targets.npy:  正解ラベル
+#  ├ /targets   :  正解ラベル
 
 def MakePairData(source_dir_path, trans_dir_path):
-    #ソースディレクトリ内の全ての動画のパスを読み込んで、ソート
-    trans_paths = sorted(glob(source_dir_path + "/**.mp4"), key=lambda s: int(re.findall(r'\d+', s)[1]))
+    # ソースディレクトリ内の全ての動画のパスを読み込んで、ソート
+    # reの[]内は例えば"10.mp4"の"10"を抽出したいのでlen-2にしている
+    trans_paths = sorted(glob(source_dir_path + "/**.mp4"), key=lambda s: int(re.findall(r'\d+', s)[len(re.findall(r'\d+', s))-2]))
     print(trans_paths)
-
-    #新規フォルダ作成
-    os.mkdir(trans_dir_path + "/wide")
-    os.mkdir(trans_dir_path + "/verch")
 
     #wide(=verch)の動画数
     num = len(trans_paths)//2
-    print(num)
+    print("video_num:{}*2".format(num))
 
-    #wideのビデオは順序を変えずに移す
-    for i in range(num):
-        file_name = str(i) + ".mp4"
-        shutil.copyfile(trans_paths[2*i], trans_dir_path + "/wide/" + file_name)
+    wide_paths = []
+    verch_paths = []
 
-    #verchの操作。。。
-    #巡回置換する動画の番号リストをランダムで作成
+    #全動画のパスをwide,verchに分ける
+    for path in trans_paths:
+        #wide
+        if "v" not in os.path.basename(path):
+            wide_paths.append(path)
+        #verch
+        else:
+            verch_paths.append(path)
+
+    # verchの操作
+    # 巡回置換する動画の番号リストをランダムで作成
     change_list = sorted(random.sample([i for i in range(num)], num//2))
-    print(change_list)
 
-    """
-    #巡回置換するため、[1,2,3,...,num-1,0]というリストを作成
-    #cyclic_list = [i for i in range(1, len(change_list))]
-    #cyclic_list.append(0)
-    #print(cyclic_list)
+    # 先頭をpopして、それを末尾にappendすれば巡回置換
+    tmp = change_list.pop(0)
+    change_list.append(tmp)
 
-    #change_listを巡回置換
-    # ( a=[0,2,4]のとき、a[[1,2,0]] == [2,4,0] )
-    #after_change_list = change_list[cyclic_list]
-    #print(after_change_list)
-    """
-
-    #先頭をpopして、それを末尾にappendすれば巡回置換
-    after_change_list = change_list[:]
-    tmp = after_change_list.pop(0)
-    after_change_list.append(tmp)
-    print(after_change_list)
-
+    #正解ラベル
     targets = []
 
+    #巡回置換しない番号を挿入
     for i in range(num):
-        #change_listに載ってたやつは巡回置換して移す
-        if i in change_list:
-            idx = change_list.index(i)
-            file_name = str(after_change_list[idx]) + "v.mp4"
-            shutil.copyfile(trans_paths[2*i+1], trans_dir_path + "/verch/" + file_name)
-            #正解ラベルは0
+        if i not in change_list:
+            change_list.insert(i, i)
+            targets.append(1)
+
+        else:
             targets.append(0)
 
-        #載ってなかったらそのままの順番で移す
-        else:
-            file_name = str(i) + "v.mp4"
-            shutil.copyfile(trans_paths[2*i+1], trans_dir_path + "/verch/" + file_name)
-            #正解ラベルは1
-            targets.append(1)
+    print(change_list)
+    print(targets)
+
+    #verchのパスを並び替え(一応listに直した)
+    verch_paths = list(np.array(verch_paths)[change_list])
+
+    #名前は長県戦_1Qなどにする
+    Q = os.path.basename(source_dir_path)
+    dir = os.path.dirname(source_dir_path)
+    match = os.path.basename(dir)
+    filename = match + "_" + Q
+
+    #150フレームに切ったものを保存
+    CutFivesec(wide_paths, trans_dir_path + "/wide", filename)
+    CutFivesec(verch_paths, trans_dir_path + "/verch", filename)
 
     #正解ラベルを保存
     np.array(targets, dtype="uint8")
-    np.save(trans_dir_path + "/targets", targets)
+    np.save(trans_dir_path + "/targets/" + filename, targets)
 
-MakePairData("D:/VE/長県戦/1Qtrans", "D:/VE/TRANS_DATA/1Q")
+MakePairData("D:/VE/長県戦/1Qtrans", "D:/VE/TRANS_DATA")

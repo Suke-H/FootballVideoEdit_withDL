@@ -14,7 +14,7 @@ import random
 def VideoTrans(source_dir_path, trans_dir_data):
 
     #ソースディレクトリ内の全ての動画のパスを読み込んで、ソート
-    ori_paths = sorted(glob(source_dir_path + "/**.MTS"), key=lambda s: int(re.findall(r'\d+', s)[1]))
+    ori_paths = sorted(glob(source_dir_path + "/**.MTS"), key=lambda s: int(re.findall(r'\d+', s)[len(re.findall(r'\d+', s))-1]))
     print(ori_paths)
 
     for i, path in enumerate(ori_paths):
