@@ -4,6 +4,7 @@ from glob import glob
 import re
 import shutil
 import random
+import time
 
 from CutFivesec import CutFivesec
 
@@ -16,14 +17,16 @@ from CutFivesec import CutFivesec
 #  ├ /targets   :  正解ラベル
 
 def MakePairData(source_dir_path, trans_dir_path):
+    start = time.time()
+
     # ソースディレクトリ内の全ての動画のパスを読み込んで、ソート
     # reの[]内は例えば"10.mp4"の"10"を抽出したいのでlen-2にしている
     trans_paths = sorted(glob(source_dir_path + "/**.mp4"), key=lambda s: int(re.findall(r'\d+', s)[len(re.findall(r'\d+', s))-2]))
-    print(trans_paths)
+    #print(trans_paths)
 
     #wide(=verch)の動画数
     num = len(trans_paths)//2
-    print("video_num:{}*2".format(num))
+    #print("video_num:{}*2".format(num))
 
     wide_paths = []
     verch_paths = []
@@ -36,6 +39,8 @@ def MakePairData(source_dir_path, trans_dir_path):
         #verch
         else:
             verch_paths.append(path)
+
+    #print("wide:{}, verch:{}".format(len(wide_paths),len(verch_paths)))
 
     # verchの操作
     # 巡回置換する動画の番号リストをランダムで作成
@@ -57,8 +62,8 @@ def MakePairData(source_dir_path, trans_dir_path):
         else:
             targets.append(0)
 
-    print(change_list)
-    print(targets)
+    #print(change_list)
+    #print(targets)
 
     #verchのパスを並び替え(一応listに直した)
     verch_paths = list(np.array(verch_paths)[change_list])
@@ -69,12 +74,29 @@ def MakePairData(source_dir_path, trans_dir_path):
     match = os.path.basename(dir)
     filename = match + "_" + Q
 
+    print(filename)
+
     #150フレームに切ったものを保存
     CutFivesec(wide_paths, trans_dir_path + "/wide", filename)
     CutFivesec(verch_paths, trans_dir_path + "/verch", filename)
 
+    #一応wideとverchのパスをtxtに保存
+    np.savetxt(trans_dir_path + "/wide/" + filename + ".txt", np.array(wide_paths), fmt="%s")
+    np.savetxt(trans_dir_path + "/verch/" + filename + ".txt", np.array(verch_paths), fmt="%s")
+
     #正解ラベルを保存
     np.array(targets, dtype="uint8")
     np.save(trans_dir_path + "/targets/" + filename, targets)
+    np.savetxt(trans_dir_path + "/targets/" + filename + ".txt", targets, fmt="%s")
 
-MakePairData("D:/VE/長県戦/1Qtrans", "D:/VE/TRANS_DATA")
+
+    end = time.time()
+    print("time:{}s/1video".format((end-start)/(num*2)))
+
+#MakePairData("D:/VE/長県戦/1QT", "D:/VE/TRANS_DATA")
+
+
+folders = glob("D:/2018mp4/**/**")
+print(folders)
+for folder in folders:
+    MakePairData(folder, "D:/VE/TRANS_DATA")

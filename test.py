@@ -12,6 +12,7 @@ Img = cv2.resize(gray, size)
 cv2.imwrite("D:/VE/TRANS_DATA/1Q/test2.jpg", Img)
 """
 
+"""
 import numpy as np
 import random
 
@@ -39,6 +40,13 @@ a = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 print(change_list)
 print(a[change_list])
 print(targets)
+"""
+
+import numpy as np
+
+paths = np.array(["D:/VE/長県戦/1QT/0.mp4","D:/VE/長県戦/1QT/1.mp4"])
+
+np.savetxt("test.txt", paths, fmt="%s")
 
 
 
