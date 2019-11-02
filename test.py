@@ -44,10 +44,16 @@ print(targets)
 
 import numpy as np
 
-paths = np.array(["D:/VE/長県戦/1QT/0.mp4","D:/VE/長県戦/1QT/1.mp4"])
+paths = ["D:/VE/TRANS_DATA/wide/4_14佐大vs西南大_1Q.npy",\
+         "D:/VE/TRANS_DATA/wide/4_14佐大vs西南大_3Q.npy"]
 
-np.savetxt("test.txt", paths, fmt="%s")
 
+a0 = np.empty((0,150,200,200))
+#a1 = np.load("D:/VE/TRANS_DATA/wide/4_14佐大vs西南大_1Q.npy")
+#a2 = np.load("D:/VE/TRANS_DATA/wide/4_14佐大vs西南大_3Q.npy")
+
+a = np.concatenate([np.load(paths[i]) for i in range(len(paths))], axis=0)
+print(a.shape)
 
 
 
