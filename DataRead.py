@@ -1,5 +1,4 @@
 import keras
-from keras.datasets import mnist
 from keras import backend as K
 import numpy as np
 from glob import glob
@@ -74,6 +73,3 @@ def PairDataRead(dir_path):
 
     end = time.time()
     print("time:{}m".format((end-start)/60))
-
-
-#PairDataRead("D:/VE/TRANS_DATA")

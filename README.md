@@ -32,6 +32,12 @@ FootballVideoEdit_withDL
 
 以上のことを踏まえて，wideとverticalの2つの動画を比較し，プレーの同一判定を行う．
 
+Pythonでの必須ライブラリ (動作確認時のバージョン)
+-----
+- numpy (1.18.1)
+- tensorflow (2.1.0)
+- keras (2.3.1)
+
 # 2つの動画の同一判定
 
 深層距離学習(Deep Metric Learning)を用いて，`wide`と`vertical`の2つの動画のプレー同一判定を行う．
