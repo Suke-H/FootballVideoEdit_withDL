@@ -39,5 +39,3 @@ def CutFivesec(paths, trans_dir_path, filename):
 
     #[N, 150, 200, 200]の動画データセットを一つのnpyファイルにして保存
     np.save(trans_dir_path + "/" + filename, videos)
-
-#CutFivesec("D:/VE/TRANS_DATA/1Q/wide", "D:/VE/TRANS_DATA/1Q", "test1")

@@ -1,6 +1,2 @@
-*.mp4
-*.MTS
-video
-/.idea
-botu
 __pycache__
+models/model.h5

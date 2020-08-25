@@ -93,10 +93,12 @@ def MakePairData(source_dir_path, trans_dir_path):
     end = time.time()
     print("time:{}s/1video".format((end-start)/(num*2)))
 
-#MakePairData("D:/VE/長県戦/1QT", "D:/VE/TRANS_DATA")
+if __name__ == '__main__':
+    # フォルダパス指定
+    folder_path = "D:/2018mp4/"
+    output_path = "D:/VE/TRANS_DATA"
 
-
-folders = glob("D:/2018mp4/**/**")
-print(folders)
-for folder in folders:
-    MakePairData(folder, "D:/VE/TRANS_DATA")
+    folders = glob(folder_path + "**/**")
+    print(folders)
+    for folder in folders:
+        MakePairData(folder, output_path)
