@@ -1,2 +1,1 @@
-__pycache__
-models/model.h5
+models/*
