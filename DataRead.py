@@ -3,11 +3,9 @@ from keras import backend as K
 import numpy as np
 from glob import glob
 import re
-import time
 import random
 
 def PairDataRead(dir_path):
-    start = time.time()
 
     num_classes = 2
     img_rows, img_cols, frame = 200, 200, 30
@@ -26,9 +24,12 @@ def PairDataRead(dir_path):
                            key=lambda s: int(re.findall(r'\d+', s)[len(re.findall(r'\d+', s)) - 1]))
     targets_data = np.concatenate([np.load(targets_paths[i]) for i in range(len(targets_paths))], axis=0)
 
-    # 減らしてみる...
-    wide_data = wide_data[:, 120:150, :, :]
-    verch_data = verch_data[:, 120:150, :, :]
+    wide_data = wide_data[:, :, :, :]
+    verch_data = verch_data[:, :, :, :]
+
+    # # メモリー不足になる場合このように減らす
+    # wide_data = wide_data[:, 120:150, :, :]
+    # verch_data = verch_data[:, 120:150, :, :]
 
     # 訓練データと検証データに分ける(9:1にする)
     N = wide_data.shape[0]
@@ -57,7 +58,7 @@ def PairDataRead(dir_path):
         verch_test = verch_test.transpose(0, 2, 3, 1)
         input_shape = (img_rows, img_cols, frame)
 
-    #正規化とかの処理
+    # 正規化などの処理
     wide_train = wide_train.astype('float32')
     wide_test = wide_test.astype('float32')
     verch_train = verch_train.astype('float32')
@@ -67,9 +68,4 @@ def PairDataRead(dir_path):
     verch_train /= 255
     verch_test /= 255
 
-    # 正解ラベル読み込み
-
     return input_shape, wide_train, verch_train, y_train, wide_test, verch_test, y_test
-
-    end = time.time()
-    print("time:{}m".format((end-start)/60))
